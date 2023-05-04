@@ -7,7 +7,7 @@ const targetDir = path.join(__dirname, 'files-copy');
 async function copyFile(fileName) {  
   try {
     await fs.promises.mkdir(targetDir, { recursive: true });
-    await fs.promises.copyFile(path.join(sourceDir, fileName),path.join(targetDir, fileName));
+    await fs.promises.copyFile(path.join(sourceDir, fileName), path.join(targetDir, fileName));
   } catch (err) {
     console.error(err.message);
   }  
@@ -15,13 +15,13 @@ async function copyFile(fileName) {
 
 async function copyDir(folder) {
   try {
-    const files = await fs.promises.readdir(folder,{withFileTypes: true});
+    const files = await fs.promises.readdir(folder, { withFileTypes: true });
     files.forEach(file => {
       copyFile(file.name);
     });
-    console.log(`SUCCESS: all files was copied from ${sourceDir} to ${targetDir}`);
-  } catch (error) {
-    console.log('Error: ' + error);
+    console.log(`SUCCESS: all files was copied from ${ sourceDir } to ${ targetDir }`);
+  } catch (err) {
+    console.error(err.message);
   }
 }
 
