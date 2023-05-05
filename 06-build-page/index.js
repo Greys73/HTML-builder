@@ -1,15 +1,16 @@
-// + 1. Создать папку project-dist
-// + 2. Полностью перенести assets
-// + 3. Собрать все стили из папки styles в style.css
-// 4. Прочитать все файлы из components в массив структур
-// 5. Потоково копировать и сохранять template заменяя шаблонные теги
-// "John Smith".replace(/(\w+) (\w+)/i, '$2, $1')) // Smith, John
+// TODO:
+/* 
+ + 1. Создать папку project-dist
+ + 2. Полностью перенести assets
+ + 3. Собрать все стили из папки styles в style.css
+ + 4. Прочитать все файлы из components в объект
+ + 5. Прочитать template и заменить шаблонные теги на данные из п.4 
+ */
 
 const fs = require('fs');
 const path = require('path');
 
 const targetDir = path.join(__dirname, 'project-dist');
-const components = {};
 
 async function copyFile(source, dest, name) {  
   try {
@@ -71,18 +72,24 @@ async function getStylesFrom(source, dest) {
   }
 }
 
-async function getDataFromFile(filePath, object) {  
+async function getDataFromFile(filePath) {  
   try {    
     const data = await fs.promises.readFile(filePath, 'utf8');
-    components['aaa'] = 124;
-    components[path.parse(filePath).name] = data;
+    return data;
+  } catch (err) {
+    console.error(err.message);
+  }
+}
+async function saveDataToFile(data, filePath) {
+  try {    
+    await fs.promises.writeFile(filePath, data, 'utf8');
   } catch (err) {
     console.error(err.message);
   }
 }
 
 (async () => {
-  try {
+  try {    
     // create './project-dist' directory
     await fs.promises.mkdir(targetDir, { recursive: true });
     // copy './assets' to './project-dist
@@ -90,13 +97,26 @@ async function getDataFromFile(filePath, object) {
     // merge './styles' to './project-dist/style.css'
     await getStylesFrom(path.join(__dirname, 'styles'), path.join(targetDir, 'style.css'));
     //read files from './components' to object    
-    const files = await fs.promises.readdir(path.join(__dirname, 'components'));
-    const components = await getDataFromFiles(files);
-    files.forEach(file => {
-      const filePath = path.join(__dirname, 'components',file);
-      getDataFromFile(filePath, components);
+    const components = {};
+    const files = await fs.promises.readdir(path.join(__dirname, 'components'), { recursive: true });    
+    await Promise.all(
+      files.map(async (file) => {        
+        const res = await getDataFromFile(path.join(__dirname, 'components',file));
+        components[path.parse(file).name] = res;
+      })
+    );    
+    // read ./template.html
+    let resultHTML = await getDataFromFile(path.join(__dirname, 'template.html'));    
+    resultHTML = resultHTML.replace(/{{(\w+)}}/g, (str) => {
+      const file = str.replace(/[{}]/g,'');
+      if(file in components) {
+        return components[file];
+      }
     });
-    console.log(components);
+    // save index.html
+    await saveDataToFile(resultHTML, path.join(targetDir, 'index.html'));
+    // result message
+    console.log(`SUCSESS: HTML-page was build in ${targetDir}`);
   } catch (err) {
     console.error(err.message);
   }
