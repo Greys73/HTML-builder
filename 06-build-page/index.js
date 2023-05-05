@@ -99,10 +99,12 @@ async function saveDataToFile(data, filePath) {
     //read files from './components' to object    
     const components = {};
     const files = await fs.promises.readdir(path.join(__dirname, 'components'), { recursive: true });    
-    await Promise.all(
-      files.map(async (file) => {        
-        const res = await getDataFromFile(path.join(__dirname, 'components',file));
-        components[path.parse(file).name] = res;
+    await Promise.all(      
+      files.map(async (file) => {
+        if(path.extname(file) === '.html') {
+          const res = await getDataFromFile(path.join(__dirname, 'components',file));
+          components[path.parse(file).name] = res;
+        }
       })
     );    
     // read ./template.html
@@ -111,6 +113,9 @@ async function saveDataToFile(data, filePath) {
       const file = str.replace(/[{}]/g,'');
       if(file in components) {
         return components[file];
+      } else {
+        console.log(`WARN: ${file}.html not found in ${path.join(__dirname, 'components')}`);
+        return str;
       }
     });
     // save index.html
