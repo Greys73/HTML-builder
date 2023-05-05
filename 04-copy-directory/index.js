@@ -15,6 +15,7 @@ async function copyFile(fileName) {
 
 async function copyDir(folder) {
   try {
+    await fs.promises.rmdir(targetDir, { recursive: true });
     const files = await fs.promises.readdir(folder, { withFileTypes: true });
     files.forEach(file => {
       copyFile(file.name);

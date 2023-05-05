@@ -89,11 +89,13 @@ async function saveDataToFile(data, filePath) {
 }
 
 (async () => {
-  try {    
-    // create './project-dist' directory
+  try {
+    // delete './project-dist' directory if exists
+    await fs.promises.rmdir(targetDir, { recursive: true });
+    // create './project-dist' directory    
     await fs.promises.mkdir(targetDir, { recursive: true });
-    // copy './assets' to './project-dist
-    await copyDir(__dirname, targetDir, 'assets');
+    // copy './assets' to './project-dist    
+    await copyDir(__dirname, targetDir, 'assets');    
     // merge './styles' to './project-dist/style.css'
     await getStylesFrom(path.join(__dirname, 'styles'), path.join(targetDir, 'style.css'));
     //read files from './components' to object    
