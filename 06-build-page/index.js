@@ -91,7 +91,7 @@ async function saveDataToFile(data, filePath) {
 (async () => {
   try {
     // delete './project-dist' directory if exists
-    await fs.promises.rmdir(targetDir, { recursive: true });
+    await fs.promises.rm(targetDir, { recursive: true, force: true });
     // create './project-dist' directory    
     await fs.promises.mkdir(targetDir, { recursive: true });
     // copy './assets' to './project-dist    
